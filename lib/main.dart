@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:psicalendar_movil/views/home_screen.dart';
 import 'package:psicalendar_movil/views/calendar_screen.dart';
 import 'package:psicalendar_movil/views/day_screen.dart';
+import 'package:psicalendar_movil/views/about_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => HomeScreen(),
         '/calendar': (context) => CalendarScreen(),
-        '/day': (context) => DayScreen(), // Placeholder for day view
+        '/day': (context) => DayScreen(),
+        '/about': (context) => AboutScreen(),
       },
     );
   }
