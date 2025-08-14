@@ -1,3 +1,4 @@
+	// ...existing code...
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -41,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 				padding: const EdgeInsets.all(24.0),
 				child: Column(
 					crossAxisAlignment: CrossAxisAlignment.start,
-					children: [
+														children: [
 						SwitchListTile(
 							title: const Text('Modo noche'),
 							value: darkMode,
@@ -69,50 +70,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 						),
 						const SizedBox(height: 24),
 									ElevatedButton(
-																			onPressed: () {
-																				Navigator.pop(context, {
-																					'darkMode': darkMode,
-																					'showShortDate': showShortDate,
-																					'daysToShow': daysToShow,
-																				});
-																				Future.microtask(() {
-																					if (mounted) {
-																						ScaffoldMessenger.of(context).showSnackBar(
-																							const SnackBar(content: Text('Configuración guardada.')),
-																						);
-																						Navigator.pushReplacementNamed(context, '/calendar');
-																					}
-																				});
-																			},
+																								onPressed: () {
+																									Navigator.pop(context, {
+																										'darkMode': darkMode,
+																										'showShortDate': showShortDate,
+																										'daysToShow': daysToShow,
+																										'showSnackBar': true,
+																									});
+																								},
 														child: const Text('Guardar configuración'),
 									),
-									const SizedBox(height: 24),
-									ElevatedButton(
-										style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-										onPressed: () async {
-											final confirm = await showDialog<bool>(
-												context: context,
-												builder: (context) => AlertDialog(
-													title: const Text('¿Borrar todos los datos?'),
-													content: const Text('Esta acción eliminará todos los registros de la app y la base de datos. ¿Estás seguro?'),
-													actions: [
-														TextButton(
-															onPressed: () => Navigator.pop(context, false),
-															child: const Text('Cancelar'),
-														),
-														TextButton(
-															onPressed: () => Navigator.pop(context, true),
-															child: const Text('Borrar'),
-														),
-													],
+												const SizedBox(height: 24),
+												ElevatedButton(
+													style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+													onPressed: () async {
+														final confirm = await showDialog<bool>(
+															context: context,
+															builder: (context) => AlertDialog(
+																title: const Text('¿Borrar todos los datos?'),
+																content: const Text('Esta acción eliminará todos los registros de la app y la base de datos. ¿Estás seguro?'),
+																actions: [
+																	TextButton(
+																		onPressed: () => Navigator.pop(context, false),
+																		child: const Text('Cancelar'),
+																	),
+																	TextButton(
+																		onPressed: () => Navigator.pop(context, true),
+																		child: const Text('Borrar'),
+																	),
+																],
+															),
+														);
+														if (confirm == true) {
+															await _deleteAllData();
+														}
+													},
+													child: const Text('Borrar todos los datos'),
 												),
-											);
-											if (confirm == true) {
-												await _deleteAllData();
-											}
-										},
-										child: const Text('Borrar todos los datos'),
-									),
 					],
 				),
 			),
