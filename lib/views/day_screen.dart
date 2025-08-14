@@ -55,26 +55,52 @@ class _DayScreenState extends State<DayScreen> {
   }
 
   Future<void> _save() async {
-    if (_dateKey == null) return;
-    if (mounted) setState(() { _loading = true; });
-    await FirebaseFirestore.instance.collection('days').doc(_dateKey).set({
-      'text': _controller.text,
-      'emoji': _selectedEmoji,
-    });
-    if (mounted) {
-      setState(() {
-        _hasSaved = true;
-        _loading = false;
-      });
+    if (_dateKey == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Guardado exitosamente.')),
+        const SnackBar(content: Text('Error: No se pudo identificar la fecha.')),
       );
-      // Usar Future.microtask para asegurar que no se llama setState tras dispose
-      Future.microtask(() {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/calendar');
-        }
+      return;
+    }
+    if (_selectedEmoji == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona un emoji antes de guardar.')),
+      );
+      return;
+    }
+    if (_controller.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Escribe una nota antes de guardar.')),
+      );
+      return;
+    }
+    if (mounted) setState(() { _loading = true; });
+    try {
+      await FirebaseFirestore.instance.collection('days').doc(_dateKey).set({
+        'text': _controller.text.trim(),
+        'emoji': _selectedEmoji,
+        'timestamp': DateTime.now().toIso8601String(),
       });
+      if (mounted) {
+        setState(() {
+          _hasSaved = true;
+          _loading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Guardado exitosamente.')),
+        );
+        Future.microtask(() {
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/calendar');
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() { _loading = false; });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar: $e')),
+        );
+      }
     }
   }
 

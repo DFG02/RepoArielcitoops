@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 	// ...existing code...
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +11,27 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+	@override
+	void initState() {
+		super.initState();
+		_loadPrefs();
+	}
+
+	Future<void> _loadPrefs() async {
+		final prefs = await SharedPreferences.getInstance();
+		setState(() {
+			darkMode = prefs.getBool('darkMode') ?? false;
+			showShortDate = prefs.getBool('showShortDate') ?? false;
+			daysToShow = prefs.getInt('daysToShow') ?? 7;
+		});
+	}
+
+	Future<void> _savePrefs() async {
+		final prefs = await SharedPreferences.getInstance();
+		await prefs.setBool('darkMode', darkMode);
+		await prefs.setBool('showShortDate', showShortDate);
+		await prefs.setInt('daysToShow', daysToShow);
+	}
 	Future<void> _deleteAllData() async {
 		try {
 			final daysCollection = FirebaseFirestore.instance.collection('days');
@@ -70,14 +92,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 						),
 						const SizedBox(height: 24),
 									ElevatedButton(
-																								onPressed: () {
-																									Navigator.pop(context, {
-																										'darkMode': darkMode,
-																										'showShortDate': showShortDate,
-																										'daysToShow': daysToShow,
-																										'showSnackBar': true,
-																									});
-																								},
+																													onPressed: () async {
+																														await _savePrefs();
+																														Navigator.pop(context, {
+																															'darkMode': darkMode,
+																															'showShortDate': showShortDate,
+																															'daysToShow': daysToShow,
+																															'showSnackBar': true,
+																														});
+																													},
 														child: const Text('Guardar configuración'),
 									),
 												const SizedBox(height: 24),
