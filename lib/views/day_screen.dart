@@ -36,40 +36,46 @@ class _DayScreenState extends State<DayScreen> {
 
   Future<void> _loadFromFirestore() async {
     if (_dateKey == null) return;
-    setState(() {
-      _loading = true;
-    });
+    if (mounted) setState(() { _loading = true; });
     final doc = await FirebaseFirestore.instance
         .collection('days')
         .doc(_dateKey)
         .get();
-    if (doc.exists) {
-      final data = doc.data()!;
-      _controller.text = data['text'] ?? '';
-      _selectedEmoji = data['emoji'];
-      _hasSaved = true;
+    if (mounted) {
+      if (doc.exists) {
+        final data = doc.data()!;
+        _controller.text = data['text'] ?? '';
+        _selectedEmoji = data['emoji'];
+        _hasSaved = true;
+      }
+      setState(() {
+        _loading = false;
+      });
     }
-    setState(() {
-      _loading = false;
-    });
   }
 
   Future<void> _save() async {
     if (_dateKey == null) return;
-    setState(() {
-      _loading = true;
-    });
+    if (mounted) setState(() { _loading = true; });
     await FirebaseFirestore.instance.collection('days').doc(_dateKey).set({
       'text': _controller.text,
       'emoji': _selectedEmoji,
     });
-    setState(() {
-      _hasSaved = true;
-      _loading = false;
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Guardado exitosamente.')));
+    if (mounted) {
+      setState(() {
+        _hasSaved = true;
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Guardado exitosamente.')),
+      );
+      // Usar Future.microtask para asegurar que no se llama setState tras dispose
+      Future.microtask(() {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/calendar');
+        }
+      });
+    }
   }
 
   @override
@@ -153,11 +159,7 @@ class _DayScreenState extends State<DayScreen> {
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed:
-                        (_selectedEmoji != null &&
-                            _controller.text.trim().isNotEmpty)
-                        ? _save
-                        : null,
+                    onPressed: _save,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[700],
                       padding: const EdgeInsets.symmetric(vertical: 16),

@@ -3,6 +3,7 @@ import 'package:psicalendar_movil/views/home_screen.dart';
 import 'package:psicalendar_movil/views/calendar_screen.dart';
 import 'package:psicalendar_movil/views/day_screen.dart';
 import 'package:psicalendar_movil/views/about_screen.dart';
+import 'package:psicalendar_movil/views/settings_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PsiCalendar',
       theme: ThemeData(primarySwatch: Colors.blue),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: const HomeScreen(),
       initialRoute: '/home',
       routes: {
@@ -27,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/calendar': (context) => CalendarScreen(),
         '/day': (context) => DayScreen(),
         '/about': (context) => AboutScreen(),
+        '/settings': (context) => SettingsScreen(),
       },
     );
   }
